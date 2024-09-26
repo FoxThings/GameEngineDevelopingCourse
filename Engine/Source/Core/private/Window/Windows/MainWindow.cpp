@@ -8,9 +8,20 @@
 #include <WindowEventsCallbacks.h>
 #include <Window/IWindow.h>
 
+#include <set>
+
 namespace GameEngine::Core
 {
 	Window* g_MainWindowsApplication = nullptr;
+	std::set<WPARAM>* pressedKeys = nullptr;
+
+	void ProcessKeyAction(WPARAM virtualKeyCode, bool isKeyDown)
+	{
+		if (isKeyDown)
+			pressedKeys->insert(virtualKeyCode);
+		else 
+			pressedKeys->erase(virtualKeyCode);
+	}
 
 	LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
@@ -34,6 +45,12 @@ namespace GameEngine::Core
 			return 0;
 		case WM_MOUSEMOVE:
 			OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), g_MainCamera, g_MainWindowsApplication);
+			return 0;
+		case WM_KEYDOWN:
+			ProcessKeyAction(wParam, true);
+			return 0;
+		case WM_KEYUP:
+			ProcessKeyAction(wParam, false);
 			return 0;
 		}
 		return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -83,9 +100,18 @@ namespace GameEngine::Core
 			return;
 		}
 
+		pressedKeys = new std::set<WPARAM>();
+
 		ShowWindow(GetPlatformWindowHandle(m_WndHndl), SW_SHOW);
 		UpdateWindow(GetPlatformWindowHandle(m_WndHndl));
 
 		return;
+	}
+
+	bool Window::IsKeyPressed(unsigned long long code)
+	{
+		assert(pressedKeys);
+		
+		return pressedKeys->contains(code);
 	}
 }

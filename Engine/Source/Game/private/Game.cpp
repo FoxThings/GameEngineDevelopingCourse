@@ -17,7 +17,7 @@ namespace GameEngine
 		m_renderThread = std::make_unique<Render::RenderThread>();
 
 		// How many objects do we want to create
-		for (int i = 0; i < 3; ++i)
+		for (int i = 0; i < 1; ++i)
 		{
 			m_Objects.push_back(new GameObject());
 			Render::RenderObject** renderObject = m_Objects.back()->GetRenderObjectRef();
@@ -48,25 +48,23 @@ namespace GameEngine
 
 	void Game::Update(float dt)
 	{
-		for (int i = 0; i < m_Objects.size(); ++i)
-		{
-			Math::Vector3f pos = m_Objects[i]->GetPosition();
+		const float speed = 10.;
 
-			// Showcase
-			if (i == 0)
-			{
-				pos.x += 0.5f * dt;
-			}
-			else if (i == 1)
-			{
-				pos.y -= 0.5f * dt;
-			}
-			else if (i == 2)
-			{
-				pos.x += 0.5f * dt;
-				pos.y -= 0.5f * dt;
-			}
-			m_Objects[i]->SetPosition(pos, m_renderThread->GetMainFrame());
-		}
+		float xDir = (GetKey(KeyCode::LEFT) || GetKey(KeyCode::A)) ? -1 :
+			(GetKey(KeyCode::RIGHT) || GetKey(KeyCode::D)) ? 1 : 0;
+
+		float yDir = (GetKey(KeyCode::DOWN) || GetKey(KeyCode::S)) ? 1 :
+			(GetKey(KeyCode::UP) || GetKey(KeyCode::W)) ? -1 : 0;
+
+		Math::Vector3f pos = m_Objects[0]->GetPosition();
+		pos.x += speed * xDir * dt;
+		pos.y -= speed * yDir * dt;
+
+		m_Objects[0]->SetPosition(pos, m_renderThread->GetMainFrame());
+	}
+
+	bool Game::GetKey(KeyCode code)
+	{
+		return GameEngine::Core::g_MainWindowsApplication->IsKeyPressed(code);
 	}
 }

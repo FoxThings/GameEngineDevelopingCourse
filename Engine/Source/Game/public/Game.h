@@ -20,6 +20,7 @@ namespace GameEngine
 	public:
 		void Run();
 		void Update(float dt);
+		bool GetKey(KeyCode code);
 
 	private:
 		// The main idea behind having this functor is to abstract the common code from the platfrom-specific code

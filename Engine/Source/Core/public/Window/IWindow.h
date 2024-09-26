@@ -2,6 +2,7 @@
 
 #include <Core/export.h>
 #include <Vector.h>
+#include <Core/KeyCode.h>
 
 namespace GameEngine::Core
 {
@@ -20,6 +21,7 @@ namespace GameEngine::Core
 		float GetAspectRatio() const { return (float)m_Width / (float)m_Height; }
 		Math::Vector2i GetMousePos() const { return m_MousePos; }
 		void SetMousePos(int x, int y) { m_MousePos.x = x; m_MousePos.y = y; }
+		bool IsKeyPressed(unsigned long long code);
 
 	private:
 		uint32_t m_Width = 800;
