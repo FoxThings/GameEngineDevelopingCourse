@@ -7,6 +7,22 @@
 
 namespace GameEngine
 {
+	struct GameKeymap
+	{
+		KeyCode left;
+		KeyCode right;
+		KeyCode down;
+		KeyCode up;
+	};
+
+	static GameKeymap DEFAULT_KEYMAP =
+	{
+		KeyCode::LEFT,
+		KeyCode::RIGHT,
+		KeyCode::DOWN,
+		KeyCode::UP
+	};
+
 	class GameObject;
 
 	class Game final
@@ -14,7 +30,8 @@ namespace GameEngine
 	public:
 		Game() = delete;
 		Game(
-			std::function<bool()> PlatformLoopFunc
+			std::function<bool()> PlatformLoopFunc,
+			GameKeymap keymap = DEFAULT_KEYMAP
 		);
 
 	public:
@@ -30,5 +47,6 @@ namespace GameEngine
 		Core::Timer m_GameTimer;
 		std::unique_ptr<Render::RenderThread> m_renderThread;
 		std::vector<GameObject*> m_Objects;
+		GameKeymap keymap;
 	};
 }

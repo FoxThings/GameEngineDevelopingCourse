@@ -8,10 +8,13 @@
 namespace GameEngine
 {
 	Game::Game(
-		std::function<bool()> PlatformLoopFunc
+		std::function<bool()> PlatformLoopFunc,
+		GameKeymap keymap
 	) :
 		PlatformLoop(PlatformLoopFunc)
 	{
+		this->keymap = keymap;
+
 		Core::g_MainCamera = new Core::Camera();
 		Core::g_MainCamera->SetPosition(Math::Vector3f(0.0f, 6.0f, -6.0f));
 		Core::g_MainCamera->SetViewDir(Math::Vector3f(0.0f, -6.0f, 6.0f).Normalized());
@@ -52,11 +55,11 @@ namespace GameEngine
 	{
 		const float speed = 10.;
 
-		float xDir = (GetKey(KeyCode::LEFT) || GetKey(KeyCode::A)) ? -1 :
-			(GetKey(KeyCode::RIGHT) || GetKey(KeyCode::D)) ? 1 : 0;
+		float xDir = GetKey(this->keymap.left) ? -1 :
+			GetKey(this->keymap.right) ? 1 : 0;
 
-		float yDir = (GetKey(KeyCode::DOWN) || GetKey(KeyCode::S)) ? 1 :
-			(GetKey(KeyCode::UP) || GetKey(KeyCode::W)) ? -1 : 0;
+		float yDir = GetKey(this->keymap.down) ? 1 :
+			GetKey(this->keymap.up) ? -1 : 0;
 
 		Math::Vector3f pos = m_Objects[0]->GetPosition();
 		pos.x += speed * xDir * dt;
