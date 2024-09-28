@@ -5,7 +5,6 @@
 #include <Game.h>
 #include <array.h>
 #include <iostream>
-#include <filesystem>
 #include <ini.h>
 #include <map>
 
@@ -14,7 +13,7 @@
 #include <crtdbg.h>
 #endif
 
-static const std::filesystem::path CONFIG_PATH = "../../../../../Assets/config.ini";
+static const char* CONFIG_PATH = "../../../../../Assets/Configs/Movement.ini";
 
 bool WindowsMessageLoop()
 {
@@ -45,8 +44,14 @@ GameEngine::KeyCode getKeyCode(const char* value)
 	};
 
 	std::string strValue(value);
-	if (keymapDict.contains(strValue)) {
+	if (keymapDict.contains(strValue)) 
+	{
 		return keymapDict.at(strValue);
+	}
+	else
+	{
+		const int offset = strValue[0] - 'a';
+		return (GameEngine::KeyCode)(GameEngine::KeyCode::A + offset);
 	}
 
 	return GameEngine::KeyCode::A;
@@ -79,9 +84,9 @@ int handler(void* user, const char* section, const char* name,
 
 GameEngine::GameKeymap ReadLayoutConfig()
 {
-	GameEngine::GameKeymap keymap;
+	GameEngine::GameKeymap keymap {};
 
-	if (ini_parse("test.ini", handler, &keymap) < 0) {
+	if (ini_parse(CONFIG_PATH, handler, &keymap) < 0) {
 		assert(!"Can not load ini config");
 	}
 
@@ -104,7 +109,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	GameEngine::Core::g_MainWindowsApplication = new GameEngine::Core::Window();
 	GameEngine::Core::g_MainWindowsApplication->Init(hInstance);
 
-	std::unique_ptr<GameEngine::Game> game = std::make_unique<GameEngine::Game>(&WindowsMessageLoop);
+	std::unique_ptr<GameEngine::Game> game = std::make_unique<GameEngine::Game>(&WindowsMessageLoop, ReadLayoutConfig());
 
 	game->Run();
 
