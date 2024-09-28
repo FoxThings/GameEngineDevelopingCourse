@@ -3,6 +3,8 @@
 #include <Game.h>
 #include <GameObject.h>
 
+#include <KeyCode.h>
+
 namespace GameEngine
 {
 	Game::Game(

@@ -2,7 +2,7 @@
 
 #include <Core/export.h>
 #include <Vector.h>
-#include <Core/KeyCode.h>
+#include <KeyCode.h>
 
 namespace GameEngine::Core
 {
