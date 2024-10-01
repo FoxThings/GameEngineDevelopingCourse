@@ -1,8 +1,8 @@
 #include <Camera.h>
 #include <DefaultGeometry.h>
 #include <Game.h>
-#include <GameObject.h>
 #include <Input/InputHandler.h>
+#include <Scripts.h>
 
 namespace GameEngine
 {
@@ -17,12 +17,34 @@ namespace GameEngine
 
 		m_renderThread = std::make_unique<Render::RenderThread>();
 
+		srand(time(0));
+
 		// How many objects do we want to create
-		for (int i = 0; i < 3; ++i)
+		for (int i = 0; i < 100; ++i)
 		{
-			m_Objects.push_back(new GameObject());
+			GameEngine::GameObject* obj = new GameObject();
+			m_Objects.push_back(obj);
 			Render::RenderObject** renderObject = m_Objects.back()->GetRenderObjectRef();
 			m_renderThread->EnqueueCommand(Render::ERC::CreateRenderObject, RenderCore::DefaultGeometry::Cube(), renderObject);
+
+			IScript* script = nullptr;
+			switch (rand() % 3)
+			{
+			case 0:
+				script = new MovingObjectScript(obj);
+				break;
+			case 1:
+				script = new PlayableObjectScript(obj);
+				break;
+			case 2:
+				script = new PhyscicalObjectScript(obj);
+				break;
+			}
+			obj->AttachScript(script);
+
+			Math::Vector3f pos = obj->GetPosition();
+			pos.x += pos.x + i * 2 * (i % 2 == 0 ? 1 : -1);
+			obj->SetPosition(pos, m_renderThread->GetMainFrame());
 		}
 
 		Core::g_InputHandler->RegisterCallback("GoForward", [&]() { Core::g_MainCamera->Move(Core::g_MainCamera->GetViewDir()); });
@@ -60,23 +82,7 @@ namespace GameEngine
 	{
 		for (int i = 0; i < m_Objects.size(); ++i)
 		{
-			Math::Vector3f pos = m_Objects[i]->GetPosition();
-
-			// Showcase
-			if (i == 0)
-			{
-				pos.x += 0.5f * dt;
-			}
-			else if (i == 1)
-			{
-				pos.y -= 0.5f * dt;
-			}
-			else if (i == 2)
-			{
-				pos.x += 0.5f * dt;
-				pos.y -= 0.5f * dt;
-			}
-			m_Objects[i]->SetPosition(pos, m_renderThread->GetMainFrame());
+			m_Objects[i]->Update(dt, m_renderThread->GetMainFrame());
 		}
 	}
 }

@@ -3,6 +3,7 @@
 #include <RenderObject.h>
 #include <RenderThread.h>
 #include <Vector.h>
+#include <IScript.h>
 
 namespace GameEngine
 {
@@ -29,9 +30,24 @@ namespace GameEngine
 			return m_Position;
 		}
 
+		void Update(float dt, size_t frame)
+		{
+			if (this->m_script != nullptr)
+			{
+				this->m_script->Update(dt, frame);
+			}
+		}
+
+		void AttachScript(GameEngine::IScript* script = NULL)
+		{
+			this->m_script = script;
+		};
+
 	protected:
 		Render::RenderObject* m_RenderObject = nullptr;
 
 		Math::Vector3f m_Position = Math::Vector3f::Zero();
+
+		GameEngine::IScript* m_script = nullptr;
 	};
 }
