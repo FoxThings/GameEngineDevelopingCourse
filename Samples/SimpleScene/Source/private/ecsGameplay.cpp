@@ -67,7 +67,6 @@ void RegisterEcsGameplaySystems(flecs::world& world)
 				if (time.timer.GetTotalTime() >= bullet.timeToDeath)
 				{
 					position.value = GameEngine::Math::Vector3f(10000, 10000, 10000);
-					e.clear();
 				}
 			});
 
