@@ -45,26 +45,35 @@ void GameFramework::Init()
 	flecs::entity camera = m_World.entity()
 		.set(Position{ 0.0f, 12.0f, -10.0f })
 		.set(Speed{ 10.f })
+		.set(Player{ 0.2, 0 })
+		.set(Timer(0))
 		.set(CameraPtr{ Core::g_MainCamera })
 		.set(ControllerPtr{ new Core::Controller(Core::g_FileSystem->GetConfigPath("Input_default.ini")) });
 
 	flecs::entity destoyable = m_World.entity()
 		.set(Position{ 6.0f, 6.f, 0.f })
 		.set(Timer({ 0 }))
+		.set(ToDestroy({ 5 }))
 		.set(EntitySystem::ECS::GeometryPtr{ RenderCore::DefaultGeometry::Cube() })
 		.set(EntitySystem::ECS::RenderObjectPtr{ new Render::RenderObject() });
 
 	flecs::entity a1 = m_World.entity()
 		.set(Position{ 10.0f, 6.f, 0.f })
 		.set(Velocity{0.5f, 0.0f, 0.0f})
-		.set(Obstacle({ false }))
+		.set(Obstacle())
 		.set(EntitySystem::ECS::GeometryPtr{ RenderCore::DefaultGeometry::Cube() })
 		.set(EntitySystem::ECS::RenderObjectPtr{ new Render::RenderObject() });
 
 	flecs::entity a2 = m_World.entity()
 		.set(Position{ 16.0f, 6.f, 0.f })
 		.set(Velocity{ -0.5f, 0.0f, 0.0f })
-		.set(Obstacle({ false }))
+		.set(Obstacle())
+		.set(EntitySystem::ECS::GeometryPtr{ RenderCore::DefaultGeometry::Cube() })
+		.set(EntitySystem::ECS::RenderObjectPtr{ new Render::RenderObject() });
+
+	flecs::entity target = m_World.entity()
+		.set(Position{ -6.f, 6.0f, 0.f })
+		.set(Obstacle())
 		.set(EntitySystem::ECS::GeometryPtr{ RenderCore::DefaultGeometry::Cube() })
 		.set(EntitySystem::ECS::RenderObjectPtr{ new Render::RenderObject() });
 }
@@ -81,13 +90,39 @@ void GameFramework::RegisterComponents()
 	ECS_META_COMPONENT(m_World, FrictionAmount);
 	ECS_META_COMPONENT(m_World, Speed);
 	ECS_META_COMPONENT(m_World, Timer);
+	ECS_META_COMPONENT(m_World, ToDestroy);
 	ECS_META_COMPONENT(m_World, Obstacle);
+}
+
+void RegisterECSGameplaySystems(flecs::world& world)
+{
+	world.system<Position, CameraPtr, const ControllerPtr, Timer, Player>()
+		.each([&](flecs::entity e, Position& position, CameraPtr& camera, const ControllerPtr& controller, Timer& timer, Player& player)
+			{
+				if (controller.ptr->IsPressed("Jump") && timer.time - player.lastShooted > player.timeToShoot)
+				{
+					player.lastShooted = timer.time;
+
+					Math::Vector3f bulletVelocity = camera.ptr->GetViewDir().Normalized() * 50;
+					Math::Vector3f spawnPoint = camera.ptr->GetPosition();
+
+					flecs::entity bullet = world.entity()
+						.set(Position({spawnPoint.x, spawnPoint.y, spawnPoint.z}))
+						.set(Velocity({bulletVelocity.x, bulletVelocity.y, bulletVelocity.z}))
+						.set(Timer({ 0 }))
+						.set(ToDestroy({ 3 }))
+						.set(Obstacle({ true, false, false }))
+						.set(EntitySystem::ECS::GeometryPtr{ RenderCore::DefaultGeometry::SmallCube() })
+						.set(EntitySystem::ECS::RenderObjectPtr{ new Render::RenderObject() });
+				}
+			});
 }
 
 void GameFramework::RegisterSystems()
 {
 	RegisterEcsMeshSystems(m_World);
 	RegisterEcsControlSystems(m_World);
+	RegisterECSGameplaySystems(m_World);
 }
 
 void GameFramework::Update(float dt)

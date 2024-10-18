@@ -63,7 +63,14 @@ ECS_STRUCT(Timer,
 	float time;
 });
 
+ECS_STRUCT(ToDestroy,
+{
+	float toDestroy;
+});
+
 ECS_STRUCT(Obstacle,
 {
+	bool isBullet;
 	bool isCollided;
+	bool isCollidedByBullet;
 });
