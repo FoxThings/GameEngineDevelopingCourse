@@ -47,6 +47,26 @@ void GameFramework::Init()
 		.set(Speed{ 10.f })
 		.set(CameraPtr{ Core::g_MainCamera })
 		.set(ControllerPtr{ new Core::Controller(Core::g_FileSystem->GetConfigPath("Input_default.ini")) });
+
+	flecs::entity destoyable = m_World.entity()
+		.set(Position{ 6.0f, 6.f, 0.f })
+		.set(Timer({ 0 }))
+		.set(EntitySystem::ECS::GeometryPtr{ RenderCore::DefaultGeometry::Cube() })
+		.set(EntitySystem::ECS::RenderObjectPtr{ new Render::RenderObject() });
+
+	flecs::entity a1 = m_World.entity()
+		.set(Position{ 10.0f, 6.f, 0.f })
+		.set(Velocity{0.5f, 0.0f, 0.0f})
+		.set(Obstacle({ false }))
+		.set(EntitySystem::ECS::GeometryPtr{ RenderCore::DefaultGeometry::Cube() })
+		.set(EntitySystem::ECS::RenderObjectPtr{ new Render::RenderObject() });
+
+	flecs::entity a2 = m_World.entity()
+		.set(Position{ 16.0f, 6.f, 0.f })
+		.set(Velocity{ -0.5f, 0.0f, 0.0f })
+		.set(Obstacle({ false }))
+		.set(EntitySystem::ECS::GeometryPtr{ RenderCore::DefaultGeometry::Cube() })
+		.set(EntitySystem::ECS::RenderObjectPtr{ new Render::RenderObject() });
 }
 
 void GameFramework::RegisterComponents()
@@ -60,6 +80,8 @@ void GameFramework::RegisterComponents()
 	ECS_META_COMPONENT(m_World, ShiverAmount);
 	ECS_META_COMPONENT(m_World, FrictionAmount);
 	ECS_META_COMPONENT(m_World, Speed);
+	ECS_META_COMPONENT(m_World, Timer);
+	ECS_META_COMPONENT(m_World, Obstacle);
 }
 
 void GameFramework::RegisterSystems()
